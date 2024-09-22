@@ -79,4 +79,28 @@ export class authService {
       throw new NotFoundException('bad password');
     }
   }
+
+  googleLogin(req) {
+    if (!req.user) {
+      return 'No user from google';
+    }
+
+ 
+    const expiresIn = 20 * 1000; // 1 hour in milliseconds
+    const currentDate = new Date();
+    const expirationDate = new Date(currentDate.getTime() + expiresIn);
+
+    const payload = { username: req.user.firstName.diplayname, sub: req.user.email };
+    return {
+      User: {
+        username: req.user.firstName,
+        id: req.user.email,
+        email:req.user.email,
+        IsAdmin: false,
+      },
+      access_token: this.jwtservice.sign(payload, { expiresIn: '5h' }),
+      refresh_token: this.jwtservice.sign(payload, { expiresIn: '7d' }),
+      expiresIn: expirationDate,
+    };
+  }
 }

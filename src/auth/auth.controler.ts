@@ -14,14 +14,15 @@ import { createUser } from 'src/users/dtos/create.user.dto';
 import { JwtAuthGuard } from './gards/jwt.gard';
 import { currentUser } from 'src/decorators/current-user.decorator';
 import { ClassSerializerInterceptor } from '@nestjs/common';
+import { GoogleOAuthGuard } from './gards/google-oauth.guard';
 
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)
 export class authControler {
   constructor(private authservice: authService) {}
 
-  @UseGuards(localAuthGard)
   @Post('login')
+  @UseGuards(localAuthGard)
   async login(@Request() req) {
     return this.authservice.login(req.user);
   }
@@ -42,5 +43,15 @@ export class authControler {
   @UseGuards(JwtAuthGuard)
   getprofile(@currentUser() user: users) {
     return user;
+  }
+
+  @Get('google')
+  @UseGuards(GoogleOAuthGuard)
+  async googleAuth(@Request() req) {}
+
+  @Get('google-redirect')
+  @UseGuards(GoogleOAuthGuard)
+  googleAuthRedirect(@Request() req) {
+    return this.authservice.googleLogin(req);
   }
 }
