@@ -57,7 +57,7 @@ export class ArticlesService {
         id: true,
         created: true,
         updated: true,
-        user: { id: true, diplayname: true, email: true },
+        user: { id: true, diplayname: true, email: true,image:true },
       },
       order: { created: 'DESC', updated: 'DESC' },
 
@@ -86,7 +86,7 @@ export class ArticlesService {
         id: true,
         created: true,
         updated: true,
-        user: { id: true, diplayname: true, email: true },
+        user: { id: true, diplayname: true, email: true ,image:true},
       },
       where: { id: Id },
     });

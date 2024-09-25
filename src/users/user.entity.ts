@@ -8,19 +8,20 @@ import {
 import { Exclude } from 'class-transformer';
 import { articles } from 'src/articles/models/articles.entity';
 import { Comments } from 'src/comments/comments.entity';
-import { UUID } from 'typeorm/driver/mongodb/bson.typings';
 
 @Entity()
 export class users {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
   diplayname: string;
-  @Column()
+  @Column({ unique: true })
   email: string;
+  @Column({ nullable:true , default:"https://miro.medium.com/v2/resize:fill:64:64/1*dmbNkD5D-u45r44go_cf0g.png"})
+  image: string;
   @Exclude()
-  @Column()
+  @Column({ nullable: true })
   password: string;
   @Column({ default: false })
   IsAdmin: boolean;

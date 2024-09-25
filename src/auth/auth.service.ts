@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { users } from 'src/users/user.entity';
 import { randomBytes, scrypt, scryptSync } from 'crypto';
 import { createUser } from 'src/users/dtos/create.user.dto';
+import { oauthUser } from 'src/users/dtos/oauth.user.dto';
 
 @Injectable()
 export class authService {
@@ -23,12 +24,11 @@ export class authService {
 
     const payload = { username: user.diplayname, sub: user.id };
     return {
-      User: {
-        username: user.diplayname,
-        id: user.id,
-        email:user.email,
-        IsAdmin: user.IsAdmin,
-      },
+      username: user.diplayname,
+      id: user.id,
+      email: user.email,
+      image: user.image,
+      IsAdmin: user.IsAdmin,
       access_token: this.jwtservice.sign(payload, { expiresIn: '5h' }),
       refresh_token: this.jwtservice.sign(payload, { expiresIn: '7d' }),
       expiresIn: expirationDate,
@@ -85,22 +85,35 @@ export class authService {
       return 'No user from google';
     }
 
- 
     const expiresIn = 20 * 1000; // 1 hour in milliseconds
     const currentDate = new Date();
     const expirationDate = new Date(currentDate.getTime() + expiresIn);
 
-    const payload = { username: req.user.firstName.diplayname, sub: req.user.email };
+    const payload = {
+      username: req.user.firstName.diplayname,
+      sub: req.user.email,
+    };
     return {
       User: {
         username: req.user.firstName,
         id: req.user.email,
-        email:req.user.email,
+        email: req.user.email,
         IsAdmin: false,
       },
       access_token: this.jwtservice.sign(payload, { expiresIn: '5h' }),
       refresh_token: this.jwtservice.sign(payload, { expiresIn: '7d' }),
       expiresIn: expirationDate,
     };
+  }
+
+  async oauthLogin(oauthuser: oauthUser) {
+    const [user] = await this.userservice.find(oauthuser.email);
+    // the local user should be verfied for this step to be secure
+    // to do add local user email verficathion
+    if (user) {
+      return this.login(user);
+    }
+    const newOauthUser = await this.userservice.CreateOauthUser(oauthuser);
+    return this.login(newOauthUser);
   }
 }

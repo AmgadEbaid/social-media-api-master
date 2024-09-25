@@ -4,6 +4,7 @@ import { users } from './user.entity';
 import { privateEncrypt } from 'crypto';
 import { Repository } from 'typeorm';
 import { createUser } from './dtos/create.user.dto';
+import { oauthUser } from './dtos/oauth.user.dto';
 @Injectable()
 export class userService {
   constructor(
@@ -25,6 +26,11 @@ export class userService {
     const user = await this.userRepository.create(userbody);
     await this.userRepository.save(user);
     return user;
+  }
+  async CreateOauthUser(oauthUser:oauthUser){
+      const user = await this.userRepository.create(oauthUser)
+      await this.userRepository.save(user)
+      return user
   }
   async find(email: string) {
     const users = this.userRepository.find({ where: { email: email } });
