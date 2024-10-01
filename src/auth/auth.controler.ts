@@ -14,7 +14,6 @@ import { createUser } from 'src/users/dtos/create.user.dto';
 import { JwtAuthGuard } from './gards/jwt.gard';
 import { currentUser } from 'src/decorators/current-user.decorator';
 import { ClassSerializerInterceptor } from '@nestjs/common';
-import { GoogleOAuthGuard } from './gards/google-oauth.guard';
 import { oauthUser } from 'src/users/dtos/oauth.user.dto';
 
 @Controller('auth')
@@ -29,9 +28,9 @@ export class authControler {
   }
 
   @Post('oauth/Login')
-  async oauthLogin(@Body() User: oauthUser){
-    console.log(User)
-    return this.authservice.oauthLogin(User)
+  async oauthLogin(@Body() User: oauthUser) {
+    console.log(User);
+    return this.authservice.oauthLogin(User);
   }
 
   @Post('singup')
@@ -51,8 +50,4 @@ export class authControler {
   getprofile(@currentUser() user: users) {
     return user;
   }
-
-  
-
-
 }

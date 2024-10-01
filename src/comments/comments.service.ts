@@ -6,7 +6,8 @@ import { CreateComment } from './comments.dto.ts/comment.create.dto';
 import { users } from 'src/users/user.entity';
 import { articles } from 'src/articles/models/articles.entity';
 import { UpdateComment } from './comments.dto.ts/comment.update.dto';
-
+import { error } from 'console';
+import { tuple } from 'zod';
 
 @Injectable()
 export class CommentsService {

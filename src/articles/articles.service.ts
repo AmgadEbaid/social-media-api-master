@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { GoneException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { articles } from './models/articles.entity';
 import { ILike, QueryResult, Repository } from 'typeorm';
@@ -57,7 +57,7 @@ export class ArticlesService {
         id: true,
         created: true,
         updated: true,
-        user: { id: true, diplayname: true, email: true,image:true },
+        user: { id: true, diplayname: true, email: true, image: true },
       },
       order: { created: 'DESC', updated: 'DESC' },
 
@@ -66,17 +66,17 @@ export class ArticlesService {
     });
   }
 
-  getUserArticles(userId:string){
+  getUserArticles(userId: string) {
     return this.articleRepository.find({
-      relations:{user:true},
-      where:{user:{id:userId}},
-   
-      order:{created:"DESC",updated:'DESC'}
-    })
+      relations: { user: true },
+      where: { user: { id: userId } },
+
+      order: { created: 'DESC', updated: 'DESC' },
+    });
   }
 
-  getById(Id: string) {
-    return this.articleRepository.findOne({
+  async getById(Id: string) {
+    const article = await this.articleRepository.findOne({
       relations: { user: true },
       select: {
         content: true,
@@ -86,16 +86,16 @@ export class ArticlesService {
         id: true,
         created: true,
         updated: true,
-        user: { id: true, diplayname: true, email: true ,image:true},
+        user: { id: true, diplayname: true, email: true, image: true },
       },
       where: { id: Id },
     });
+    return article;
   }
-
 
   searchArticle(serchQuery: SerchQuery) {
     const { query, take, skip, order } = serchQuery;
-    console.log(query,take,skip)
+    console.log(query, take, skip);
     return this.articleRepository.find({
       relations: { user: true },
       select: {
@@ -116,12 +116,12 @@ export class ArticlesService {
         { user: { diplayname: ILike(`%${query}%`) } },
         { user: { email: ILike(`%${query}%`) } },
       ],
-       
+
       order: { created: 'DESC', updated: 'DESC' },
     });
   }
 
-  async addFavorites(user: users, articleId:string) {
+  async addFavorites(user: users, articleId: string) {
     const article = await this.articleRepository.findOneBy({ id: articleId });
     if (!article) {
       throw new NotFoundException('article was not found');
@@ -158,7 +158,6 @@ export class ArticlesService {
       .where('articles.Id = :id', { id: articleId })
       .andWhere('users.id =:userid', { userid: user.id })
       .getOne();
-      
 
     if (!userLiked) {
       throw new NotFoundException('user does not like this article');
@@ -177,24 +176,30 @@ export class ArticlesService {
     );
   }
 
-  getUserFavorites(user: users) {
-    return this.articleRepository
-      .createQueryBuilder()
-      .leftJoinAndSelect('articles.favoreteUsers', 'users')
-      .where('users.id =:userid', { userid: user.id })
-      .getManyAndCount();
+ async getUserFavorites(userId: string) {
+
+    const UserFavoriteArticles  = await this.articleRepository.find({relations:{user:true,favoreteUsers:true},
+    where:[{favoreteUsers:{id:userId}}]
+    })
+    return UserFavoriteArticles
   }
 
   async getIsFavorite(user: users, articleId: string) {
+    const fav = await this.articleRepository.find({
+      relations: { favoreteUsers: true ,user:true},
+      where:[{ id: articleId },{ favoreteUsers: { id: user.id }}],
+    });
+    console.log(user.id,articleId)
+    console.log(fav );
     const userLiked = await this.articleRepository
-    .createQueryBuilder()
-    .innerJoinAndSelect('articles.favoreteUsers', 'users')
-    .where('articles.Id = :id', { id: articleId })
-    .andWhere('users.id =:userid', { userid: user.id })
-    .getOne();
+      .createQueryBuilder()
+      .innerJoinAndSelect('articles.favoreteUsers', 'users')
+      .where('articles.Id = :id', { id: articleId })
+      .andWhere('users.id =:userid', { userid: user.id })
+      .getOne();
 
-          return userLiked ? true : false
+    return userLiked ? true : false;
   }
+
+ 
 }
-
-

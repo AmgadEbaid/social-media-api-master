@@ -16,7 +16,6 @@ export class userService {
 
     const user = this.userRepository.findOne({
       where: { id: id },
-      relations: { articles: true },
     });
     if (!user) throw new NotFoundException('not found');
     return user;
@@ -24,17 +23,34 @@ export class userService {
 
   async create(userbody: createUser) {
     const user = await this.userRepository.create(userbody);
+    user.provider = 'local';
     await this.userRepository.save(user);
     return user;
   }
-  async CreateOauthUser(oauthUser:oauthUser){
-      const user = await this.userRepository.create(oauthUser)
-      await this.userRepository.save(user)
-      return user
+  async CreateOauthUser(oauthUser: oauthUser) {
+    const user = await this.userRepository.create(oauthUser);
+    user.provider = oauthUser.provider;
+    user.password = null;
+    await this.userRepository.save(user);
+    return user;
   }
   async find(email: string) {
     const users = this.userRepository.find({ where: { email: email } });
 
     return users;
+  }
+  async findAuthor(id: string) {
+    const user = this.userRepository.findOne({
+      select: {
+        diplayname: true,
+        email: true,
+        id: true,
+        image: true,
+        IsAdmin: true,
+      },
+      where: { id: id },
+    });
+
+    return user;
   }
 }

@@ -8,5 +8,8 @@ export class oauthUser {
   email: string;
 
   @IsString()
-  image: string;    
+  image: string;  
+  
+  @IsString()
+  provider: string; 
 }

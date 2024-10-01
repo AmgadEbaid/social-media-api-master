@@ -9,10 +9,9 @@ import {
 } from '@nestjs/common';
 import { userService } from './users.service';
 import { createUser } from './dtos/create.user.dto';
-import { use } from 'passport';
-import { currentUser } from 'src/decorators/current-user.decorator';
-import { users } from './user.entity';
+
 @Controller('users')
+@UseInterceptors(ClassSerializerInterceptor)
 export class userscontroler {
   constructor(private userservice: userService) {}
   @UseInterceptors(ClassSerializerInterceptor)
@@ -23,6 +22,6 @@ export class userscontroler {
 
   @Get('/:id')
   findone(@Param('id') id: string) {
-    return this.userservice.findone(id);
+    return this.userservice.findAuthor(id);
   }
 }

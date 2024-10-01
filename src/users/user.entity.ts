@@ -16,6 +16,8 @@ export class users {
 
   @Column()
   diplayname: string;
+  @Column({nullable:false})
+  provider: string;
   @Column({ unique: true })
   email: string;
   @Column({ nullable:true , default:"https://miro.medium.com/v2/resize:fill:64:64/1*dmbNkD5D-u45r44go_cf0g.png"})

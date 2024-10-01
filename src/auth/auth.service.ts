@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { userService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
@@ -29,7 +30,7 @@ export class authService {
       email: user.email,
       image: user.image,
       IsAdmin: user.IsAdmin,
-      access_token: this.jwtservice.sign(payload, { expiresIn: '5h' }),
+      access_token: this.jwtservice.sign(payload, { expiresIn: '1m' }),
       refresh_token: this.jwtservice.sign(payload, { expiresIn: '7d' }),
       expiresIn: expirationDate,
     };
@@ -66,8 +67,12 @@ export class authService {
 
   async sinin(email: string, password: string) {
     const [user] = await this.userservice.find(email);
+
     if (!user) {
       throw new NotFoundException('user not found');
+    }
+    if(user.provider !== "local" ){
+      throw new UnauthorizedException(`user is not a local user, try to login with: ${user.provider}`,user.provider)
     }
     const [salt, stordHash] = user.password.split('.');
 
@@ -80,40 +85,15 @@ export class authService {
     }
   }
 
-  googleLogin(req) {
-    if (!req.user) {
-      return 'No user from google';
-    }
 
-    const expiresIn = 20 * 1000; // 1 hour in milliseconds
-    const currentDate = new Date();
-    const expirationDate = new Date(currentDate.getTime() + expiresIn);
-
-    const payload = {
-      username: req.user.firstName.diplayname,
-      sub: req.user.email,
-    };
-    return {
-      User: {
-        username: req.user.firstName,
-        id: req.user.email,
-        email: req.user.email,
-        IsAdmin: false,
-      },
-      access_token: this.jwtservice.sign(payload, { expiresIn: '5h' }),
-      refresh_token: this.jwtservice.sign(payload, { expiresIn: '7d' }),
-      expiresIn: expirationDate,
-    };
-  }
 
   async oauthLogin(oauthuser: oauthUser) {
     const [user] = await this.userservice.find(oauthuser.email);
-    // the local user should be verfied for this step to be secure
-    // to do add local user email verficathion
     if (user) {
       return this.login(user);
     }
     const newOauthUser = await this.userservice.CreateOauthUser(oauthuser);
     return this.login(newOauthUser);
   }
+
 }

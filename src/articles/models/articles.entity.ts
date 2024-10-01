@@ -17,7 +17,7 @@ import {
 
 @Entity()
 export class articles {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
@@ -28,7 +28,7 @@ export class articles {
 
   @Column()
   content: string;
-  
+
   @Column()
   description: string;
 

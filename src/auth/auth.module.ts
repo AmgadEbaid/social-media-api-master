@@ -10,10 +10,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { users } from 'src/users/user.entity';
 import { JwtStrategy } from './stratiges/jwt.stratige';
 import { LocalStrategy } from './stratiges/local.stratige';
+import { SessionSerializer } from './session.serilizer';
 import { jwtConstants } from './jwtconstant';
 @Module({
   imports: [
     TypeOrmModule.forFeature([users]),
+    PassportModule.register({ session: true }),
     JwtModule.register({
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '2d' },
@@ -24,6 +26,7 @@ import { jwtConstants } from './jwtconstant';
   providers: [
     authService,
     userService,
+    SessionSerializer,
     LocalStrategy,
     JwtStrategy,
   ],

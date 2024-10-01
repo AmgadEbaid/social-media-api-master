@@ -26,8 +26,6 @@ import { checkAbilites } from 'src/decorators/checkAbilites.decorator';
 import { Supject } from 'src/casl/casl-ability.factory/casl-ability.factory';
 import { pagim } from './articles.dto/article.pagim.dto';
 
-
-
 @Controller('articles')
 @UseInterceptors(ClassSerializerInterceptor)
 export class ArticlesController {
@@ -35,20 +33,25 @@ export class ArticlesController {
   @Post('create')
   @UseGuards(JwtAuthGuard)
   createArticle(@currentUser() user: users, @Body() article: createArticle) {
-    const { titile, slug, content ,description} = article;
-    return this.articleservice.createArticle(user, titile, slug, content,description);
+    const { titile, slug, content, description } = article;
+    return this.articleservice.createArticle(
+      user,
+      titile,
+      slug,
+      content,
+      description,
+    );
   }
-  @Get('Favorites')
-  @UseGuards(JwtAuthGuard)
-  getUserFavorites(@currentUser() user: users) {
-    return this.articleservice.getUserFavorites(user);
+  @Get('Favorites/user/:id')
+  getUserFavorites(@Param('id') userId:string) {
+    return this.articleservice.getUserFavorites(userId);
   }
 
   @Get('user/:id')
-  async GetUserArticles(@Param('id') id:string ) {
-    console.log(id)
-    console.log(await this.articleservice.getUserArticles(id))
-          return this.articleservice.getUserArticles(id);
+  async GetUserArticles(@Param('id') id: string) {
+    console.log(id);
+    console.log(await this.articleservice.getUserArticles(id));
+    return this.articleservice.getUserArticles(id);
   }
 
   @Get('/s')
@@ -62,7 +65,6 @@ export class ArticlesController {
   }
 
   @Get('/:id')
-
   getbyid(@Param('id') id: string) {
     console.log(id);
     return this.articleservice.getById(id);
@@ -87,28 +89,20 @@ export class ArticlesController {
 
   @Post('addfavorites/:id')
   @UseGuards(JwtAuthGuard)
-  addFavorites(
-    @currentUser() user: users,
-    @Param('id') id: string,
-  ) {
+  addFavorites(@currentUser() user: users, @Param('id') id: string) {
     return this.articleservice.addFavorites(user, id);
   }
 
   @Delete('deletefavorites/:id')
   @UseGuards(JwtAuthGuard)
-  deleteFavorites(
-    @currentUser() user: users,
-    @Param('id') id:string,
-  ) {
+  deleteFavorites(@currentUser() user: users, @Param('id') id: string) {
     return this.articleservice.deleteFavorites(user, id);
   }
+  
 
   @Get('isfavorited/:id')
   @UseGuards(JwtAuthGuard)
-  isfavorited(
-    @currentUser() user: users,
-    @Param('id') id: string,
-  ) {
+  isfavorited(@currentUser() user: users, @Param('id') id: string) {
     return this.articleservice.getIsFavorite(user, id);
   }
 }
